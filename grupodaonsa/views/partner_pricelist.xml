@@ -1,0 +1,44 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="parner_pricelist_tree_view">
+            <field name="name">Partner Pricelist</field>
+            <field name="model">partner.pricelist</field>
+            <field name="arch" type="xml">
+                <tree string="Partner Pricelist">
+                    <field name="pricelist"/>
+                    <field name="commission_percentage"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="parner_pricelist_form_view">
+            <field name="name">partner.pricelist.form</field>
+            <field name="model">partner.pricelist</field>
+            <field name="arch" type="xml">
+                <form string="Partner Pricelist">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="pricelist"/>
+                            </group>
+                            <group>
+                                <field name="commission_percentage"/>%
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="partner_pricelist_menu" model="ir.actions.act_window">
+            <field name="name">Listado de precios y comisiones</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">partner.pricelist</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="partner_pricelist_views"
+        name="Listado de precios y comisiones"  
+        action="grupodaonsa.partner_pricelist_menu" 
+        parent="account_accountant.menu_accounting"/>
+    </data>
+</odoo>

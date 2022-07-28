@@ -35,7 +35,8 @@
         ],
     'data': [
         'security/ir.model.access.csv',
-        'wizards/report_wizard.xml'
+        'wizards/report_wizard.xml',
+        'views/partner_pricelist.xml'
     ],
     'installable': True,
     'application': False,
