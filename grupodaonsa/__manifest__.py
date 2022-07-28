@@ -31,10 +31,11 @@
     'company': 'Rubixware S de RL de CV',
     'website': 'https://www.rubixware.com',
     'depends': [
-        'base','contacts',
+        'base','contacts', 'account', 'account_accountant', 'sale_management'
         ],
     'data': [
         'security/ir.model.access.csv',
+        'wizards/report_wizard.xml'
     ],
     'installable': True,
     'application': False,

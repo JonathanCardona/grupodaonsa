@@ -1,0 +1,38 @@
+<odoo>
+    <record id="report_wizard_form" model="ir.ui.view">
+        <field name="name">report.wizard</field>
+        <field name="model">report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Comisiónes">
+                <group>
+                    <group>
+                        <field name="month"/>
+                    </group>
+                    <group>
+                        <field name="trimester"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="generate_report" string="Generar reporte" class="btn-primary" type="object"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="report_wizard" model="ir.actions.act_window">
+        <field name="name">Reporte de Comisiónes</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="report_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem 
+        id="report_wizard_print"
+        name="Reporte de Comisiónes"
+        parent="account_accountant.menu_accounting"
+        action="grupodaonsa.report_wizard"
+    />
+</odoo>
