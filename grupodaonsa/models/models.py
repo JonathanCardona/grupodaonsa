@@ -10,4 +10,5 @@ class PartnerPricelist(models.Model):
 
     pricelist = fields.Many2one('product.pricelist', string='Lista de precio', required=True, change_default=True, index=True)
     commission_percentage = fields.Float('Porcentaje de comision')
+    test = fields.Text('ejemplos')
 

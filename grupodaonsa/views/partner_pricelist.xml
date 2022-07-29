@@ -1,27 +1,33 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="parner_pricelist_tree_view">
+        <record model="ir.ui.view" id="partner_pricelist_tree_view">
             <field name="name">Partner Pricelist</field>
             <field name="model">partner.pricelist</field>
             <field name="arch" type="xml">
                 <tree string="Partner Pricelist">
                     <field name="pricelist"/>
+                    <field name="test"/>
                     <field name="commission_percentage"/>
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="parner_pricelist_form_view">
-            <field name="name">partner.pricelist.form</field>
+        <record model="ir.ui.view" id="partner_pricelist_form_view">
             <field name="model">partner.pricelist</field>
             <field name="arch" type="xml">
                 <form string="Partner Pricelist">
+                    <header>
+
+                    </header>
                     <sheet>
                         <group>
                             <group>
                                 <field name="pricelist"/>
                             </group>
                             <group>
-                                <field name="commission_percentage"/>%
+                                <field name="commission_percentage"/>
+                            </group>
+                            <group>
+                                <field name="test"/>
                             </group>
                         </group>
                     </sheet>
