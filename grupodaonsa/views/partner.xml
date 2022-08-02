@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="res_partner_customer_key">
+            <field name="name">Customer Key</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='sale']/field[@name='user_id']" position="after">
+                    <field name="customer_key"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
