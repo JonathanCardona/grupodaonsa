@@ -37,34 +37,35 @@ class ReportWizard(models.TransientModel):
         data = []
         for p in payments:
             invoice = self.get_invoice(p)
-            month_invoice = format(p.create_date.month, '02')
-            if self.month == month_invoice:
+            if invoice:
+                month_invoice = format(p.create_date.month, '02')
+                if self.month == month_invoice:
 
-                age_date = self.calculate_age(p, invoice)
+                    age_date = self.calculate_age(p, invoice)
 
-                shipping_price = self.get_shipping_price(invoice)
+                    shipping_price = self.get_shipping_price(invoice)
 
-                subtotal_without_shipping = invoice.amount_untaxed - shipping_price
+                    subtotal_without_shipping = invoice.amount_untaxed - shipping_price
 
-                dict = {"creation_invoice": invoice.create_date,"create_payment": p.create_date, "payment_reference": p.ref,
-                    "amount_payment": p.amount,"payment_partner": p.partner_id.name, "invoice_name": p.ref, "age_date": age_date,
-                    "amount_invoice": invoice.amount_total,"amount_subtotal": invoice.amount_untaxed,
-                    "sale_team_invoice": p.move_id.team_id.name, "vendor_invoice": p.move_id.invoice_user_id.name,
-                    "price_list": p.move_id.partner_id.property_product_pricelist.name, "subtotal_without_shipping": subtotal_without_shipping,
-                    "shipping": shipping_price}
-                data.append(dict)
+                    commission = self.get_commission(age_date, subtotal_without_shipping, p.move_id.partner_id.property_product_pricelist)
+
+                    dict = {"creation_invoice": invoice.create_date.strftime('%Y-%m-%d'), "create_payment": p.create_date.strftime('%Y-%m-%d'), "payment_reference": p.ref,
+                        "amount_payment": p.amount,"payment_partner": p.partner_id.name, "invoice_name": p.ref, "age_date": age_date,
+                        "amount_invoice": invoice.amount_total,"amount_subtotal": invoice.amount_untaxed,
+                        "sale_team_invoice": p.move_id.team_id.name, "vendor_invoice": p.move_id.invoice_user_id.name,
+                        "price_list": p.move_id.partner_id.property_product_pricelist.name, "subtotal_without_shipping": subtotal_without_shipping,
+                        "shipping": shipping_price, "commission": commission}
+                    data.append(dict)
         var_create_data_document = self.create_data_document(data)
-        #self.env['partner.pricelist'].create({
-        #    'test': var_create_data_document,
-        #    'pricelist': 1,
-        #    'commission_percentage': 10
-        #})
+        #var_create_data_document.to_excel('/Users/developer/Desktop/DAONSA/reporte_comisiones.xlsx')
+        
         raise exceptions.UserError(json.dumps(var_create_data_document, default=str))
 
 
     def create_data_document(self,data):
         creation_invoice, create_payment, payment_reference, amount_payment, payment_partner, invoice_name, age_date = [],[],[],[],[],[],[]
         amount_invoice, amount_subtotal, sale_team_invoice, vendor_invoice, price_list, subtotal_without_shipping, shipping = [],[],[],[],[],[],[]
+        commission = []
         for d in data:
             creation_invoice.append(d['creation_invoice'])
             create_payment.append(d['create_payment'])
@@ -80,24 +81,48 @@ class ReportWizard(models.TransientModel):
             price_list.append(d['price_list'])
             subtotal_without_shipping.append(d['subtotal_without_shipping'])
             shipping.append(d['shipping'])
+            commission.append(d['commission'])
         df = pd.DataFrame({'Fecha factura': creation_invoice, 'Fecha de pago': create_payment, 'Referencia de pago': payment_reference,
             'Cantidad': amount_payment, 'Cliente': payment_partner, 'Factura': invoice_name, 'Antiguedad': age_date, 'Total factura': amount_invoice,
             'Subtotal factura': amount_subtotal, 'Equipo de ventas': sale_team_invoice, 'Vendedor': vendor_invoice, 'Lista de precios': price_list,
-            'Subtotal sin envío': subtotal_without_shipping, 'Envío': shipping})
+            'Subtotal sin envío': subtotal_without_shipping, 'Envío': shipping, 'Comisión': commission})
         return df
 
     def get_invoice(self, payment):
-        return self.env['account.move'].search([('name', '=', payment.ref)])
+        invoice = self.env['account.move'].search([('name', '=', payment.ref)], limit=1)
+        return invoice
 
     def calculate_age(self, payment, invoice):
         return (payment.create_date.date() - invoice.create_date.date()).days
 
     def get_shipping_price(self, invoice):
         invoice_lines = self.env['account.move.line'].search([('move_id', '=', invoice.id)])
+        shipping_price = 0.0
         if invoice_lines:
             for i in invoice_lines:
                 if i.product_id.categ_id.name == 'Envios':
                     shipping_price = i.price_unit
+                    break
                 else:
                     shipping_price = 0.0
-                return shipping_price
+        return shipping_price
+
+    def get_commission(self, age_date, subtotal_without_shipping, pricelist):
+        list_discount_price = self.env['partner.pricelist'].search([('pricelist', '=', pricelist.id)])
+        print(age_date)
+        print(subtotal_without_shipping)
+        print(list_discount_price.commission_percentage)
+        total_commission = 0.0
+        if age_date in range(0, 75):
+            total_commission = (subtotal_without_shipping) * (list_discount_price.commission_percentage / 100)
+        elif age_date in range(75, 91):
+            total_commission = subtotal_without_shipping * (list_discount_price.commission_percentage / 100)
+        elif age_date in range(91, 120):
+            total_commission = 0.0
+        elif age_date in range(120, 150):
+            total_commission = subtotal_without_shipping * -.50
+        elif age_date >= 150:
+            total_commission = subtotal_without_shipping * -1
+        else:
+            total_commission = 0.0
+        return total_commission
